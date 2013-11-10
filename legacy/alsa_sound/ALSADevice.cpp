@@ -30,7 +30,10 @@ extern "C" {
 #ifdef QCOM_CSDCLIENT_ENABLED
 static int (*csd_disable_device)();
 static int (*csd_enable_device)(int, int, uint32_t);
+#ifdef CSD_FAST_CALL_SWITCH
 static int (*csd_enable_device_config)(int, int);
+#endif
+#ifdef NEW_CSDCLIENT
 static int (*csd_volume)(uint32_t, int);
 static int (*csd_mic_mute)(uint32_t, int);
 static int (*csd_wide_voice)(uint32_t, uint8_t);
@@ -38,6 +41,15 @@ static int (*csd_slow_talk)(uint32_t, uint8_t);
 static int (*csd_fens)(uint32_t, uint8_t);
 static int (*csd_start_voice)(uint32_t);
 static int (*csd_stop_voice)(uint32_t);
+#else
+static int (*csd_volume)(int);
+static int (*csd_mic_mute)(int);
+static int (*csd_wide_voice)(uint8_t);
+static int (*csd_slow_talk)(uint8_t);
+static int (*csd_fens)(uint8_t);
+static int (*csd_start_voice)(void);
+static int (*csd_stop_voice)(void);
+#endif
 #endif
 #ifdef QCOM_ACDB_ENABLED
 static int (*acdb_loader_get_ecrx_device)(int acdb_id);
@@ -679,6 +691,7 @@ void ALSADevice::switchDevice(alsa_handle_t *handle, uint32_t devices, uint32_t 
             tx_dev_id = DEVICE_SPEAKER_TX_ACDB_ID;
         }
 
+#ifdef CSD_FAST_CALL_SWITCH
         /* Parallelize codec configuration on APQ with CSD voice call
          * sequence on MDM. This will reduce in call device switch delay
          */
@@ -690,6 +703,7 @@ void ALSADevice::switchDevice(alsa_handle_t *handle, uint32_t devices, uint32_t 
                 ALOGE("csd_enable_device_config failed, error %d", err);
             }
         }
+#endif
     }
 #endif
 
@@ -1122,7 +1136,11 @@ status_t ALSADevice::startVoiceCall(alsa_handle_t *handle, uint32_t vsid)
         if (csd_start_voice == NULL) {
             ALOGE("csd_client_start_voice is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_start_voice(vsid);
+#else
+            err = csd_start_voice();
+#endif
             if (err < 0){
                 ALOGE("s_start_voice_call: csd_client error %d\n", err);
                 goto Error;
@@ -1319,7 +1337,11 @@ status_t ALSADevice::close(alsa_handle_t *handle, uint32_t vsid)
             if (csd_stop_voice == NULL) {
                 ALOGE("csd_client_disable_device is NULL");
             } else {
+#ifdef NEW_CSDCLIENT
                 err = csd_stop_voice(vsid);
+#else
+                err = csd_stop_voice();
+#endif
                 if (err < 0) {
                     ALOGE("s_close: csd_client error %d\n", err);
                 }
@@ -1923,7 +1945,11 @@ void ALSADevice::setVoiceVolume(int vol)
         if (csd_volume == NULL) {
             ALOGE("csd_client_volume is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_volume(ALL_SESSION_VSID, vol);
+#else
+            err = csd_volume(vol);
+#endif
             if (err < 0) {
                 ALOGE("s_set_voice_volume: csd_client error %d", err);
             }
@@ -1944,7 +1970,11 @@ void ALSADevice::setVoice2Volume(int vol)
         if (csd_volume == NULL) {
             ALOGE("csd_client_volume is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_volume(ALL_SESSION_VSID, vol);
+#else
+            err = csd_volume(vol);
+#endif
             if (err < 0) {
                 ALOGE("s_set_voice_volume: csd_client error %d", err);
             }
@@ -1965,7 +1995,11 @@ void ALSADevice::setVoLTEVolume(int vol)
         if (csd_volume == NULL) {
             ALOGE("csd_client_volume is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_volume(ALL_SESSION_VSID, vol);
+#else
+            err = csd_volume(vol);
+#endif
             if (err < 0) {
                 ALOGE("s_set_voice_volume: csd_client error %d", err);
             }
@@ -1992,7 +2026,11 @@ void ALSADevice::setMicMute(int state)
         if (csd_mic_mute == NULL) {
             ALOGE("csd_mic_mute is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_mic_mute(ALL_SESSION_VSID, state);
+#else
+            err = csd_mic_mute(state);
+#endif
             if (err < 0) {
                 ALOGE("s_set_mic_mute: csd_client error %d", err);
             }
@@ -2013,7 +2051,11 @@ void ALSADevice::setVoice2MicMute(int state)
         if (csd_mic_mute == NULL) {
             ALOGE("csd_mic_mute is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_mic_mute(ALL_SESSION_VSID, state);
+#else
+            err = csd_mic_mute(state);
+#endif
             if (err < 0) {
                 ALOGE("s_set_mic_mute: csd_client error %d", err);
             }
@@ -2035,7 +2077,11 @@ void ALSADevice::setVoLTEMicMute(int state)
         if (csd_mic_mute == NULL) {
             ALOGE("csd_mic_mute is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_mic_mute(ALL_SESSION_VSID, state);
+#else
+            err = csd_mic_mute(state);
+#endif
             if (err < 0) {
                 ALOGE("s_set_mic_mute: csd_client error %d", err);
             }
@@ -2103,7 +2149,11 @@ void ALSADevice::enableWideVoice(bool flag, uint32_t vsid)
         if (csd_wide_voice == NULL) {
             ALOGE("csd_wide_voice is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_wide_voice(vsid, flag);
+#else
+            err = csd_wide_voice(flag);
+#endif
             if (err < 0) {
                 ALOGE("enableWideVoice: csd_client_wide_voice error %d", err);
             }
@@ -2136,7 +2186,11 @@ void ALSADevice::enableFENS(bool flag, uint32_t vsid)
         if (csd_fens == NULL) {
             ALOGE("csd_fens is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_fens(vsid, flag);
+#else
+            err = csd_fens(flag);
+#endif
             if (err < 0) {
                 ALOGE("s_enable_fens: csd_client error %d", err);
             }
@@ -2161,7 +2215,11 @@ void ALSADevice::enableSlowTalk(bool flag, uint32_t vsid)
         if (csd_slow_talk == NULL) {
             ALOGE("csd_slow_talk is NULL");
         } else {
+#ifdef NEW_CSDCLIENT
             err = csd_slow_talk(vsid, flag);
+#else
+            err = csd_slow_talk(flag);
+#endif
             if (err < 0) {
                 ALOGE("s_enable_slow_talk: csd_client error %d", err);
             }
@@ -2795,8 +2853,11 @@ void  ALSADevice::setCsdHandle(void* handle)
                                             "csd_client_disable_device");
     csd_enable_device = (int (*)(int,int,uint32_t))::dlsym(mcsd_handle,
                                                     "csd_client_enable_device");
+#ifdef CSD_FAST_CALL_SWITCH
     csd_enable_device_config = (int (*)(int,int))::dlsym(mcsd_handle,
                                                     "csd_client_enable_device_config");
+#endif
+#ifdef NEW_CSDCLIENT
     csd_start_voice = (int (*)(uint32_t))::dlsym(mcsd_handle,
                                                  "csd_client_start_voice");
     csd_stop_voice = (int (*)(uint32_t))::dlsym(mcsd_handle,
@@ -2811,6 +2872,15 @@ void  ALSADevice::setCsdHandle(void* handle)
                                                    "csd_client_fens");
     csd_slow_talk = (int (*)(uint32_t, uint8_t))::dlsym(mcsd_handle,
                                                         "csd_client_slow_talk");
+#else
+    csd_start_voice = (int (*)())::dlsym(mcsd_handle, "csd_client_start_voice");
+    csd_stop_voice = (int (*)())::dlsym(mcsd_handle, "csd_client_stop_voice");
+    csd_volume = (int (*)(int))::dlsym(mcsd_handle, "csd_client_volume");
+    csd_mic_mute = (int (*)(int))::dlsym(mcsd_handle, "csd_client_mic_mute");
+    csd_wide_voice = (int (*)(uint8_t))::dlsym(mcsd_handle, "csd_client_wide_voice");
+    csd_fens = (int (*)(uint8_t))::dlsym(mcsd_handle, "csd_client_fens");
+    csd_slow_talk = (int (*)(uint8_t))::dlsym(mcsd_handle, "csd_client_slow_talk");
+#endif
 }
 #endif
 

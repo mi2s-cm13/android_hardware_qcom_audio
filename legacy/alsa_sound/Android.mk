@@ -81,6 +81,14 @@ endif
 #LOCAL_CFLAGS += -DSEPERATED_AUDIO_INPUT
 #endif
 
+ifeq ($(BOARD_HAVE_NEW_QCOM_CSDCLIENT),true)
+  LOCAL_CFLAGS += -DNEW_CSDCLIENT
+endif
+
+ifeq ($(BOARD_HAVE_CSD_FAST_CALL_SWITCH),true)
+  LOCAL_CFLAGS += -DCSD_FAST_CALL_SWITCH
+endif
+
 LOCAL_SRC_FILES := \
   AudioHardwareALSA.cpp         \
   AudioStreamOutALSA.cpp        \
