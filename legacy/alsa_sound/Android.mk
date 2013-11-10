@@ -7,57 +7,53 @@ ifeq ($(strip $(BOARD_USES_ALSA_AUDIO)),true)
 
 LOCAL_PATH := $(call my-dir)
 
-include $(CLEAR_VARS)
-
-
-LOCAL_ARM_MODE := arm
-LOCAL_CFLAGS := -D_POSIX_SOURCE
-ifeq ($(strip $(QCOM_ACDB_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_ACDB_ENABLED
+common_cflags := -D_POSIX_SOURCE
+ifneq ($(strip $(QCOM_ACDB_ENABLED)),false)
+    common_cflags += -DQCOM_ACDB_ENABLED
 endif
-ifeq ($(strip $(QCOM_ANC_HEADSET_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_ANC_HEADSET_ENABLED
+ifneq ($(strip $(QCOM_ANC_HEADSET_ENABLED)),false)
+    common_cflags += -DQCOM_ANC_HEADSET_ENABLED
 endif
 ifeq ($(strip $(QCOM_MULTI_VOICE_SESSION_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_MULTI_VOICE_SESSION_ENABLED
+    common_cflags += -DQCOM_MULTI_VOICE_SESSION_ENABLED
 endif
-ifeq ($(strip $(QCOM_AUDIO_FORMAT_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_AUDIO_FORMAT_ENABLED
+ifneq ($(strip $(QCOM_AUDIO_FORMAT_ENABLED)),false)
+    common_cflags += -DQCOM_AUDIO_FORMAT_ENABLED
 endif
-ifeq ($(strip $(QCOM_CSDCLIENT_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_CSDCLIENT_ENABLED
+ifneq ($(strip $(QCOM_CSDCLIENT_ENABLED)),false)
+    common_cflags += -DQCOM_CSDCLIENT_ENABLED
 endif
 ifeq ($(strip $(QCOM_FM_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_FM_ENABLED
+    common_cflags += -DQCOM_FM_ENABLED
 endif
-ifeq ($(strip $(QCOM_PROXY_DEVICE_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_PROXY_DEVICE_ENABLED
+ifneq ($(strip $(QCOM_PROXY_DEVICE_ENABLED)),false)
+    common_cflags += -DQCOM_PROXY_DEVICE_ENABLED
 endif
-ifeq ($(strip $(QCOM_OUTPUT_FLAGS_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_OUTPUT_FLAGS_ENABLED
+ifneq ($(strip $(QCOM_OUTPUT_FLAGS_ENABLED)),false)
+    common_cflags += -DQCOM_OUTPUT_FLAGS_ENABLED
 endif
 ifeq ($(strip $(QCOM_SSR_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_SSR_ENABLED
+    common_cflags += -DQCOM_SSR_ENABLED
 endif
-ifeq ($(strip $(QCOM_USBAUDIO_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_USBAUDIO_ENABLED
+ifneq ($(strip $(QCOM_USBAUDIO_ENABLED)),false)
+    common_cflags += -DQCOM_USBAUDIO_ENABLED
 endif
-ifeq ($(strip $(QCOM_ADSP_SSR_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_ADSP_SSR_ENABLED
+ifneq ($(strip $(QCOM_ADSP_SSR_ENABLED)),false)
+    common_cflags += -DQCOM_ADSP_SSR_ENABLED
 endif
-ifeq ($(strip $(QCOM_FLUENCE_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_FLUENCE_ENABLED
+ifneq ($(strip $(QCOM_FLUENCE_ENABLED)),false)
+    common_cflags += -DQCOM_FLUENCE_ENABLED
 endif
-ifeq ($(strip $(QCOM_TUNNEL_LPA_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_TUNNEL_LPA_ENABLED
+ifneq ($(strip $(QCOM_TUNNEL_LPA_ENABLED)),false)
+    common_cflags += -DQCOM_TUNNEL_LPA_ENABLED
 endif
 
-ifeq ($(TARGET_BOARD_PLATFORM),msm8974)
-  LOCAL_CFLAGS += -DTARGET_8974
+ifeq ($(call is-board-platform,msm8974),true)
+    common_cflags += -DTARGET_8974
 endif
 
 ifneq ($(ALSA_DEFAULT_SAMPLE_RATE),)
-    LOCAL_CFLAGS += -DALSA_DEFAULT_SAMPLE_RATE=$(ALSA_DEFAULT_SAMPLE_RATE)
+    common_cflags += -DALSA_DEFAULT_SAMPLE_RATE=$(ALSA_DEFAULT_SAMPLE_RATE)
 endif
 
 ifeq ($(strip $(AUDIO_FEATURE_ENABLED_AUXPCM_BT)),true)
@@ -69,7 +65,7 @@ endif
 # 1. Handset
 # 2. 3-Pole Headphones
 #ifeq ($(strip $(BOARD_USES_FLUENCE_INCALL)),true)
-#LOCAL_CFLAGS += -DUSES_FLUENCE_INCALL
+#    common_cflags += -DUSES_FLUENCE_INCALL
 #endif
 
 #Do not use separate audio Input path feature
@@ -78,16 +74,22 @@ endif
 # 2. Camcording
 # 3. etc.
 #ifeq ($(strip $(BOARD_USES_SEPERATED_AUDIO_INPUT)),true)
-#LOCAL_CFLAGS += -DSEPERATED_AUDIO_INPUT
+#    common_cflags += -DSEPERATED_AUDIO_INPUT
 #endif
 
 ifeq ($(BOARD_HAVE_NEW_QCOM_CSDCLIENT),true)
-  LOCAL_CFLAGS += -DNEW_CSDCLIENT
+    common_cflags += -DNEW_CSDCLIENT
 endif
 
 ifeq ($(BOARD_HAVE_CSD_FAST_CALL_SWITCH),true)
-  LOCAL_CFLAGS += -DCSD_FAST_CALL_SWITCH
+    common_cflags += -DCSD_FAST_CALL_SWITCH
 endif
+
+include $(CLEAR_VARS)
+
+LOCAL_ARM_MODE := arm
+
+LOCAL_CFLAGS += $(common_cflags)
 
 LOCAL_SRC_FILES := \
   AudioHardwareALSA.cpp         \
@@ -99,8 +101,8 @@ LOCAL_SRC_FILES := \
   AudioUtil.cpp                 \
   ALSADevice.cpp
 
-ifeq ($(strip $(QCOM_TUNNEL_LPA_ENABLED)),true)
-    LOCAL_SRC_FILES +=AudioSessionOut.cpp
+ifneq ($(strip $(QCOM_TUNNEL_LPA_ENABLED)),false)
+    LOCAL_SRC_FILES += AudioSessionOut.cpp
 endif
 
 LOCAL_STATIC_LIBRARIES := \
@@ -116,7 +118,6 @@ LOCAL_SHARED_LIBRARIES := \
     libc        \
     libpower    \
     libalsa-intf \
-    libsurround_proc\
     libaudioutils
 
 ifeq ($(TARGET_SIMULATOR),true)
@@ -157,49 +158,21 @@ include $(BUILD_SHARED_LIBRARY)
 ifeq ($(USE_LEGACY_AUDIO_POLICY), 1)
 include $(CLEAR_VARS)
 
-LOCAL_CFLAGS := -D_POSIX_SOURCE
-ifeq ($(strip $(QCOM_ACDB_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_ACDB_ENABLED
-endif
-ifeq ($(strip $(QCOM_ANC_HEADSET_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_ANC_HEADSET_ENABLED
-endif
-ifeq ($(strip $(QCOM_AUDIO_FORMAT_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_AUDIO_FORMAT_ENABLED
-endif
-ifeq ($(strip $(QCOM_CSDCLIENT_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_CSDCLIENT_ENABLED
-endif
-ifeq ($(strip $(QCOM_FM_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_FM_ENABLED
-endif
-ifeq ($(strip $(QCOM_PROXY_DEVICE_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_PROXY_DEVICE_ENABLED
-endif
-ifeq ($(strip $(QCOM_SSR_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_SSR_ENABLED
-endif
-ifeq ($(strip $(QCOM_USBAUDIO_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_USBAUDIO_ENABLED
-endif
-ifeq ($(strip $(QCOM_OUTPUT_FLAGS_ENABLED)),true)
-    LOCAL_CFLAGS += -DQCOM_OUTPUT_FLAGS_ENABLED
-endif
+LOCAL_CFLAGS += $(common_cflags)
 
 LOCAL_SRC_FILES := \
     audio_policy_hal.cpp \
     AudioPolicyManagerALSA.cpp
 
-
-ifeq ($(TARGET_BOARD_PLATFORM),msm8974)
+ifeq ($(call is-board-platform,msm8974),true)
   LOCAL_MODULE := audio_policy.msm8974
 endif
 
-ifeq ($(TARGET_BOARD_PLATFORM),msm8960)
+ifeq ($(call is-board-platform,msm8974)),msm8960)
   LOCAL_MODULE := audio_policy.msm8960
 endif
 
-ifeq ($(TARGET_BOARD_PLATFORM),msm8610)
+ifeq ($(call is-board-platform,msm8974)),msm8610)
   LOCAL_MODULE := audio_policy.msm8610
 endif
 
