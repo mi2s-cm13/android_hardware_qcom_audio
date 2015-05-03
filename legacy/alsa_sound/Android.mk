@@ -77,6 +77,14 @@ endif
 #    common_cflags += -DSEPERATED_AUDIO_INPUT
 #endif
 
+ifeq ($(BOARD_HAVE_AUDIENCE_ES310),true)
+    common_cflags += -DUSE_ES310
+endif
+
+ifeq ($(TARGET_PRODUCT),taurus)
+    common_cflags += -DTAURUS
+endif
+
 ifeq ($(BOARD_HAVE_NEW_QCOM_CSDCLIENT),true)
     common_cflags += -DNEW_CSDCLIENT
 endif

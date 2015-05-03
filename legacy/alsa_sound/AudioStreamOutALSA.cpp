@@ -222,7 +222,8 @@ ssize_t AudioStreamOutALSA::write(const void *buffer, size_t bytes)
             if (! (mParent->getExtOutActiveUseCases_l() & mUseCase )){
                 ALOGD("startPlaybackOnExtOut_l from write :: useCase = %s", mHandle->useCase);
                 status_t err = NO_ERROR;
-                err = mParent->startPlaybackOnExtOut_l(mUseCase);
+                if (mParent->mode() != AudioSystem::MODE_IN_CALL)
+                    err = mParent->startPlaybackOnExtOut_l(mUseCase);
                 if(err) {
                     ALOGE("startPlaybackOnExtOut_l from write return err = %d", err);
                     mParent->mLock.unlock();
