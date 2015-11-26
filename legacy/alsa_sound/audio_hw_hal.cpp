@@ -61,6 +61,8 @@ enum {
     HAL_API_REV_NUM
 } hal_api_rev;
 
+static struct qcom_audio_device *qadev = NULL;
+
 static uint32_t audio_device_conv_table[][HAL_API_REV_NUM] =
 {
         /* output devices */
@@ -794,7 +796,6 @@ static int qcom_adev_close(hw_device_t* device)
 static int qcom_adev_open(const hw_module_t* module, const char* name,
                             hw_device_t** device)
 {
-    struct qcom_audio_device *qadev;
     int ret;
 
     if (strcmp(name, AUDIO_HARDWARE_INTERFACE) != 0)
@@ -842,21 +843,21 @@ err_create_audio_hw:
 }
 
 static struct hw_module_methods_t qcom_audio_module_methods = {
-        open: qcom_adev_open
+        .open = qcom_adev_open
 };
 
 struct qcom_audio_module HAL_MODULE_INFO_SYM = {
-    module: {
-        common: {
-            tag: HARDWARE_MODULE_TAG,
-            module_api_version: AUDIO_MODULE_API_VERSION_0_1,
-            hal_api_version: HARDWARE_HAL_API_VERSION,
-            id: AUDIO_HARDWARE_MODULE_ID,
-            name: "QCOM Audio HW HAL",
-            author: "The Linux Foundation",
-            methods: &qcom_audio_module_methods,
-            dso : NULL,
-            reserved : {0},
+    .module = {
+        .common = {
+            .tag = HARDWARE_MODULE_TAG,
+            .module_api_version = AUDIO_MODULE_API_VERSION_0_1,
+            .hal_api_version = HARDWARE_HAL_API_VERSION,
+            .id = AUDIO_HARDWARE_MODULE_ID,
+            .name = "QCOM Audio HW HAL",
+            .author = "The Linux Foundation",
+            .methods = &qcom_audio_module_methods,
+            .dso = NULL,
+            .reserved = {0},
         },
     },
 };

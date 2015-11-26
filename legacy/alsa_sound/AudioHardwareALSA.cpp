@@ -449,7 +449,7 @@ AudioHardwareALSA::AudioHardwareALSA() :
     String8 value;
 #ifdef QCOM_FLUENCE_ENABLED
     //Set default AudioParameter for fluencetype
-    key  = String8(AudioParameter::keyFluenceType);
+    key  = String8(AUDIO_PARAMETER_KEY_FLUENCE_TYPE);
     property_get("ro.qc.sdk.audio.fluencetype",mFluenceKey,"0");
     if (0 == strncmp("fluencepro", mFluenceKey, sizeof("fluencepro"))) {
         mDevSettingsFlag |= QMIC_FLAG;
@@ -771,7 +771,7 @@ status_t AudioHardwareALSA::setParameters(const String8& keyValuePairs)
         param.remove(key);
     }
 #ifdef QCOM_FLUENCE_ENABLED
-    key = String8(AudioParameter::keyFluenceType);
+    key = String8(AUDIO_PARAMETER_KEY_FLUENCE_TYPE);
     if (param.get(key, value) == NO_ERROR) {
         if (value == "quadmic") {
             //Allow changing fluence type to "quadmic" only when fluence type is fluencepro
@@ -1054,7 +1054,7 @@ String8 AudioHardwareALSA::getParameters(const String8& keys)
         param.add(key, value);
     }
 
-    key = String8(AudioParameter::keyFluenceType);
+    key = String8(AUDIO_PARAMETER_KEY_FLUENCE_TYPE);
     if (param.get(key, value) == NO_ERROR) {
     if ((mDevSettingsFlag & QMIC_FLAG) &&
                                (mDevSettingsFlag & ~DMIC_FLAG))
@@ -1485,7 +1485,7 @@ AudioHardwareALSA::openOutputStream(uint32_t devices,
          devices, *channels, *sampleRate, flags);
 
     status_t err = BAD_VALUE;
-//#ifdef QCOM_TUNNEL_LPA_ENABLED
+#ifdef QCOM_TUNNEL_LPA_ENABLED
     if (flags & (AUDIO_OUTPUT_FLAG_LPA | AUDIO_OUTPUT_FLAG_TUNNEL)) {
         int type = !(flags & AUDIO_OUTPUT_FLAG_LPA); //0 for LPA, 1 for tunnel
         AudioSessionOutALSA *out = new AudioSessionOutALSA(this, devices, *format, *channels,
@@ -1499,7 +1499,7 @@ AudioHardwareALSA::openOutputStream(uint32_t devices,
         if (status) *status = err;
         return out;
     }
-//#endif
+#endif
     AudioStreamOutALSA *out = 0;
     ALSAHandleList::iterator it;
 
@@ -4183,6 +4183,31 @@ bool  AudioHardwareALSA::suspendPlaybackOnExtOut_l(uint32_t activeUsecase) {
     if((!getExtOutActiveUseCases_l()) && mIsExtOutEnabled )
         return mALSADevice->suspendProxy();
     return NO_ERROR;
+}
+
+status_t AudioHardwareALSA::setMasterMute(bool muted) {
+    return INVALID_OPERATION;
+}
+
+int AudioHardwareALSA::createAudioPatch(unsigned int num_sources,
+        const struct audio_port_config *sources,
+        unsigned int num_sinks,
+        const struct audio_port_config *sinks,
+        audio_patch_handle_t *handle) {
+    return INVALID_OPERATION;
+}
+
+int AudioHardwareALSA::releaseAudioPatch(audio_patch_handle_t handle) {
+    return INVALID_OPERATION;
+}
+
+int AudioHardwareALSA::getAudioPort(struct audio_port *port) {
+    return INVALID_OPERATION;
+}
+
+int AudioHardwareALSA::setAudioPortConfig(
+        const struct audio_port_config *config) {
+    return INVALID_OPERATION;
 }
 
 }       // namespace android_audio_legacy

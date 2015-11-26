@@ -134,7 +134,7 @@ class AudioHardwareALSA;
 #endif
 
 #define DEFAULT_VOICE_BUFFER_SIZE   2048
-#define PLAYBACK_LOW_LATENCY_BUFFER_SIZE   1024
+#define PLAYBACK_LOW_LATENCY_BUFFER_SIZE   256
 #define PLAYBACK_LOW_LATENCY  22000
 #define PLAYBACK_LOW_LATENCY_MEASURED  42000
 #ifdef TARGET_8974
@@ -181,6 +181,17 @@ class AudioHardwareALSA;
 #define VSID_KEY            "vsid"
 #define CALL_STATE_KEY      "call_state"
 
+/* Query Fluence type */
+#define AUDIO_PARAMETER_KEY_FLUENCE_TYPE "fluence"
+
+/* Query if a2dp  is supported */
+#define AUDIO_PARAMETER_KEY_HANDLE_A2DP_DEVICE "isA2dpDeviceSupported"
+
+/* Query if Proxy can be Opend */
+#define AUDIO_CAN_OPEN_PROXY "can_open_proxy"
+
+/* Query handle fm parameter*/
+#define AUDIO_PARAMETER_KEY_HANDLE_FM "handle_fm"
 
 #define ANC_FLAG        0x00000001
 #define DMIC_FLAG       0x00000002
@@ -988,12 +999,26 @@ public:
     /**This method dumps the state of the audio hardware */
     //virtual status_t dumpState(int fd, const Vector<String16>& args);
 
+    virtual status_t setMasterMute(bool muted);
+
     static AudioHardwareInterface* create();
 
     int                 mode()
     {
         return mMode;
     }
+
+    virtual int createAudioPatch(unsigned int num_sources,
+                               const struct audio_port_config *sources,
+                               unsigned int num_sinks,
+                               const struct audio_port_config *sinks,
+                               audio_patch_handle_t *handle);
+
+    virtual int releaseAudioPatch(audio_patch_handle_t handle);
+
+    virtual int getAudioPort(struct audio_port *port);
+
+    virtual int setAudioPortConfig(const struct audio_port_config *config);
 
     void pauseIfUseCaseTunnelOrLPA();
     void resumeIfUseCaseTunnelOrLPA();

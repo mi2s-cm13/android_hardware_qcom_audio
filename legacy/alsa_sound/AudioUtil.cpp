@@ -21,6 +21,10 @@
 //#define LOG_NDEBUG 0
 #include <utils/Log.h>
 
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "AudioUtil.h"
 
 int AudioUtil::printFormatFromEDID(unsigned char format) {

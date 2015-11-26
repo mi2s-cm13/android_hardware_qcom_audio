@@ -2,10 +2,6 @@ LOCAL_PATH:= $(call my-dir)
 
 ifeq ($(strip $(BOARD_USES_ALSA_AUDIO)),true)
 
-ifneq ($(TARGET_USES_QCOM_COMPRESSED_AUDIO),false)
-    common_cflags += -DQCOM_COMPRESSED_AUDIO_ENABLED
-endif
-
 # Any prebuilt files with default TAGS can use the below:
 include $(CLEAR_VARS)
 #LOCAL_SRC_FILES:= aplay.c alsa_pcm.c alsa_mixer.c
@@ -61,11 +57,6 @@ LOCAL_CFLAGS := -DQC_PROP -DCONFIG_DIR=\"/system/etc/snd_soc_msm/\"
 LOCAL_CFLAGS += -DCONFIG_DIR=\"/system/etc/snd_soc_msm/\"
 LOCAL_CFLAGS += $(common_cflags)
 LOCAL_ADDITIONAL_DEPENDENCIES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
-ifeq ($(TARGET_SIMULATOR),true)
- LOCAL_LDLIBS += -ldl
-else
- LOCAL_SHARED_LIBRARIES += libdl
-endif
-LOCAL_PRELINK_MODULE := false
+LOCAL_SHARED_LIBRARIES += libdl
 include $(BUILD_SHARED_LIBRARY)
 endif
